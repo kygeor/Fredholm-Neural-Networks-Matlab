@@ -187,7 +187,7 @@ $$
 L(\theta) = \frac{1}{N}\sum_{i=1}^{N} \Big(f(x_i) - \hat{f}(x_i;\hat{K}_{\theta})\Big)^2 + \lambda_{reg}\,{R}(\theta).
 $$
 
-Here, $\hat{f}(x;\hat{K}_{\theta})$ denotes the output of the Fredholm NN and $R(\theta)$ is a Tikhonov regularization term. (Note that in the journal publication additional regularization terms are considered).
+Here, $\hat{f}(x;\hat{K}_{\theta})$ denotes the output of the Fredholm NN and $R(\theta)$ is a Tikhonov regularization term. Training is done using the Levenberg–Marquardt algorithm.
 
 
 <img width="613" height="234" alt="Screenshot 2025-10-08 at 2 26 57 PM" src="https://github.com/user-attachments/assets/5bd73f8c-0b5a-4500-bafc-7535dfb46edc" />
