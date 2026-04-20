@@ -1,6 +1,6 @@
 # Fredholm Neural Networks (MATLAB) 
 
-A MATLAB package for solving **Fredholm integral equations of the second kind** using the Fredholm Neural Network (Fredholm NN/ FNN) framework. For background and theory see also https://github.com/kygeor/Fredholm-Neural-Networks-Py
+A MATLAB package for solving **forward and inverse** problems pertaining to **Fredholm integral equations of the second kind** using the Fredholm Neural Network (Fredholm NN/ FNN) framework. For background and theory see also https://github.com/kygeor/Fredholm-Neural-Networks-Py
 
 The FNN encodes the method of successive approximations (Picard / Krasnoselskii-Mann iterations) directly into the weights and biases of a deep network with linear activations. No training is required — the network is constructed analytically from the kernel and free term. 
 
