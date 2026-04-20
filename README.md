@@ -1,8 +1,10 @@
-# fredholm_nn_matlab
+# Fredholm Neural Networks (MATLAB) 
 
-A MATLAB package for solving **Fredholm integral equations of the second kind** using the Fredholm Neural Network (FNN) framework.
+A MATLAB package for solving **Fredholm integral equations of the second kind** using the Fredholm Neural Network (Fredholm NN/ FNN) framework. For background and theory see also https://github.com/kygeor/Fredholm-Neural-Networks-Py
 
-The FNN encodes the method of successive approximations (Picard / Krasnoselskii-Mann iterations) directly into the weights and biases of a deep network with linear activations. No training is required — the network is constructed analytically from the kernel and free term.
+The FNN encodes the method of successive approximations (Picard / Krasnoselskii-Mann iterations) directly into the weights and biases of a deep network with linear activations. No training is required — the network is constructed analytically from the kernel and free term. 
+
+The MATLAB toolbox also contains the functionalities necessary to run Fredholm Neural Networks for inverse problems (theory detailed below and in the corresponding papers). 
 
 **Supported problem types:**
 
@@ -12,6 +14,55 @@ The FNN encodes the method of successive approximations (Picard / Krasnoselskii-
 | Linear FIE (non-expansive operator, KM) | `fredholm_nn.solvers.solve_linear_fie(..., 'KMConstant', κ)` |
 | Second-order BVP ODE | `fredholm_nn.solvers.solve_bvp_ode` |
 | Inverse kernel problem | `fredholm_nn.solvers.solve_inverse_kernel` |
+
+---
+
+## Citation
+
+If you use this package please cite:
+
+```bibtex
+@article{georgiou2025fredholm,
+  title   = {Fredholm neural networks},
+  author  = {Georgiou, Kyriakos and Siettos, Constantinos and Yannacopoulos, Athanasios N},
+  journal = {SIAM Journal on Scientific Computing},
+  volume  = {47}, number = {4}, pages = {C1006--C1031},
+  year    = {2025}, publisher = {SIAM}
+}
+```
+and/or
+
+```bibtex
+@article{georgiou2025fredholm_pde,
+  title   = {Fredholm Neural Networks for forward and inverse problems in elliptic PDEs},
+  author  = {Georgiou, Kyriakos and Siettos, Constantinos and Yannacopoulos, Athanasios N},
+  journal = {arXiv preprint arXiv:2507.06038},
+  year    = {2025}
+}
+```
+
+## Package structure
+
+```
+fredholm_nn_matlab/
+├── +fredholm_nn/
+│   ├── +models/
+│   │   ├── FredholmNN.m          core FNN for linear FIEs
+│   │   └── FredholmNN_KM.m       Krasnoselskii-Mann variant
+│   ├── +solvers/
+│   │   ├── solve_linear_fie.m
+│   │   ├── solve_bvp_ode.m
+│   │   └── solve_inverse_kernel.m
+│   └── +utils/
+│       ├── make_uniform_grid.m
+│       └── make_grid_dictionary.m
+└── examples/
+    ├── run_examples.m            runs all examples, saves figures
+    ├── example_linear_fie.m
+    ├── example_linear_fie_km.m
+    ├── example_bvp_ode.m
+    └── example_inverse_kernel.m
+```
 
 ---
 
@@ -122,39 +173,25 @@ sol = fredholm_nn.solvers.solve_inverse_kernel( ...
 
 ---
 
-## Package structure
 
-```
-fredholm_nn_matlab/
-├── +fredholm_nn/
-│   ├── +models/
-│   │   ├── FredholmNN.m          core FNN for linear FIEs
-│   │   └── FredholmNN_KM.m       Krasnoselskii-Mann variant
-│   ├── +solvers/
-│   │   ├── solve_linear_fie.m
-│   │   ├── solve_bvp_ode.m
-│   │   └── solve_inverse_kernel.m
-│   └── +utils/
-│       ├── make_uniform_grid.m
-│       └── make_grid_dictionary.m
-└── examples/
-    ├── run_examples.m            runs all examples, saves figures
-    ├── example_linear_fie.m
-    ├── example_linear_fie_km.m
-    ├── example_bvp_ode.m
-    └── example_inverse_kernel.m
-```
+# Fredholm Neural Networks for the inverse problem (for FIEs)
 
----
+The problem consists of taking as data two functions $f, g : \Omega \to \mathbb{R}$ and modeling an unknown kernel $K : \Omega \times \Omega \to \mathbb{R}$ (e.g., a neural network) so that $f$ satisfies a target integral equation. Hence, the inverse problem is: given $\tilde{f}$ and $g$, find $K$ such that the induced integral operator admits a solution $f$ that matches $\tilde{f}$ on the chosen collocation points. 
 
-## Citation
+Our strategy uses the structure/convergence of the Fredholm NN: select parameters $\theta$ so that, when constructing the estimated kernel $K_\theta$ and feeding it into the Fredholm NN with M hidden layers, the network output $\hat{f}(x;\hat K_\theta)$ is close to the data $\tilde{f}$ under an appropriate loss.
 
-```bibtex
-@article{georgiou2025fredholm,
-  title   = {Fredholm neural networks},
-  author  = {Georgiou, Kyriakos and Siettos, Constantinos and Yannacopoulos, Athanasios N},
-  journal = {SIAM Journal on Scientific Computing},
-  volume  = {47}, number = {4}, pages = {C1006--C1031},
-  year    = {2025}, publisher = {SIAM}
-}
-```
+
+The complete loss is
+
+$$
+L(\theta) = \frac{1}{N}\sum_{i=1}^{N} \Big(f(x_i) - \hat{f}(x_i;\hat{K}_{\theta})\Big)^2 + \lambda_{reg}\,{R}(\theta).
+$$
+
+Here, $\hat{f}(x;\hat{K}_{\theta})$ denotes the output of the Fredholm NN and $R(\theta)$ is a Tikhonov regularization term. (Note that in the journal publication additional regularization terms are considered).
+
+
+<img width="613" height="234" alt="Screenshot 2025-10-08 at 2 26 57 PM" src="https://github.com/user-attachments/assets/5bd73f8c-0b5a-4500-bafc-7535dfb46edc" />
+
+*Figure 3: Algorithm to solve the inverse problem using the Fredholm NN framework.*
+
+
